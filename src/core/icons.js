@@ -3346,12 +3346,22 @@ export function resolveIconName (options = {}) {
   }, options)
 
   let id = ''
-  if (opt.isFolder) {
-    id = opt.isOpen ? (iconsdata.folderNamesExpanded[opt.name] || iconsdata.folder) : (iconsdata.folderNames[opt.name] || iconsdata.folderExpanded)
-  } else {
-    const ext = opt.name.split('.').pop() || ''
 
-    id = iconsdata.fileNames[opt.name] || iconsdata.fileExtensions[ext] || iconsdata.file
+  if (opt.isFolder) {
+    const folder = iconsdata.folderNamesExpanded[opt.name] || iconsdata.folder
+    const folderExpaned = iconsdata.folderNames[opt.name] || iconsdata.folderExpanded
+    id = opt.isOpen ? folder : folderExpaned
+  } else {
+    const exts = opt.name.split('.').slice(1)
+
+    id = iconsdata.fileNames[opt.name]
+
+    for (let i = 0; i < exts.length; i++) {
+      const ext = exts.slice(i).join('.')
+      id = id || iconsdata.fileExtensions[ext]
+    }
+
+    id = id || iconsdata.file
   }
 
   return iconsdata.iconDefinitions[id].iconPath

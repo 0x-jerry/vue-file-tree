@@ -1,10 +1,10 @@
 <template>
-  <div class="tree-explorer">
+  <div class="tree-explorer" @click="handleExplorerClick">
     <div class="tree-title-bar">
       <div class="tree-explorer-title">{{title}}</div>
       <div class="tree-explorer-actions">
-        <button class="icon" @click="createNewFile">+</button>
-        <button class="icon" @click="createNewFolder">(x)</button>
+        <button class="tree-explorer-icon" @click="createNewFile">+</button>
+        <button class="tree-explorer-icon" @click="createNewFolder">(x)</button>
       </div>
     </div>
     <nested-item :children="rootChildren" class="tree-content" />
@@ -27,8 +27,7 @@ export default {
     NestedItem
   },
   data () {
-    tree.model.splice(0)
-    tree.model.push(...this.tree)
+    tree.replace(this.tree)
 
     return {
       rootChildren: tree.model
@@ -36,16 +35,17 @@ export default {
   },
   methods: {
     createNewFile () {
-      const uid = Math.random()
-        .toString(16)
-        .substr(2)
-      tree.create(new TreeItem({ name: uid + '.js', type: 'file' }))
+      const name = window.prompt('please input name')
+      tree.add(new TreeItem({ name, type: 'file' }))
     },
     createNewFolder () {
-      const uid = Math.random()
-        .toString(16)
-        .substr(2)
-      tree.create(new TreeItem({ name: uid, type: 'folder' }))
+      const name = window.prompt('please input name')
+      tree.add(new TreeItem({ name, type: 'folder' }))
+    },
+    handleExplorerClick (e) {
+      if (e.target === e.currentTarget) {
+        tree.active(null)
+      }
     }
   }
 }
@@ -53,7 +53,7 @@ export default {
 
 <style lang="less">
 .tree-explorer {
-  width: 200px;
+  width: 300px;
   height: 600px;
   background: #191c20;
   color: white;
@@ -62,24 +62,39 @@ export default {
 
   &-title {
     color: #dae1f7;
+    height: 100%;
   }
 
   &-actions {
     flex: 1;
     text-align: right;
+    height: 100%;
+  }
+
+  &-icon {
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: #dae1f7;
+    outline: none;
+
+    &:hover {
+      background: #191c20;
+    }
   }
 }
 
 .tree-title-bar {
-  padding: 5px 10px;
+  padding: 0 10px;
+  height: 25px;
   display: flex;
   align-items: center;
   background: #282c34;
 }
 
 .tree-content {
-  height: 100%;
   overflow-y: auto;
-  overflow: hidden;
+  overflow-x: hidden;
+  max-height: calc(100% - 25px);
 }
 </style>

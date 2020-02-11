@@ -37,7 +37,7 @@ export default {
     },
     indentStyle () {
       return {
-        paddingLeft: this.model.depth + 'em'
+        paddingLeft: this.model.depth * 20 + 'px'
       }
     }
   },
@@ -71,6 +71,10 @@ export default {
     user-select: none;
   }
 
+  img {
+    -webkit-user-drag: none;
+  }
+
   &.selected {
     background: #2c313a;
   }
@@ -95,7 +99,7 @@ export default {
     &::before {
       content: "+";
       position: absolute;
-      transform: translate(-50%,-50%);
+      transform: translate(-50%, -60%);
       top: 50%;
       left: 50%;
     }
@@ -110,6 +114,10 @@ export default {
   &-title {
     color: #f1f1f1;
     margin-right: 4px;
+    flex: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   &-describe {
