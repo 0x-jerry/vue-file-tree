@@ -1,4 +1,4 @@
-# vue-file-tree
+# vue-file-tree-1
 
 ## Project setup
 ```

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
+
 const iconsdata = {
   iconDefinitions: {
     git: {

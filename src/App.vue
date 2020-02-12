@@ -5,8 +5,7 @@
 </template>
 
 <script>
-import TreeView from './core/TreeView.vue'
-import { TreeItem } from './core/model'
+import { TreeItem, TreeView } from './entry'
 
 export default {
   name: 'App',

@@ -1,21 +1,31 @@
 import vue from 'vue'
 import { configs } from './config'
 
-const TreeItemType = {
-  folder: 'folder',
-  file: 'file'
+export interface TreeItemOption {
+  name: string;
+  type: TreeItemType;
+  parent: TreeItem;
+  describe: string;
 }
 
-/**
- * @type {import('../index').TreeItem}
- */
+export type TreeItemType = 'folder' | 'file' | TreeItemTypeEnum
+
+export enum TreeItemTypeEnum {
+  folder = 'folder',
+  file = 'file',
+}
+
 export class TreeItem {
-  /**
-   *
-   * @param {Partial<import('../index').TreeItemOption>} [options]
-   */
-  constructor (options = {}) {
-    this.type = options.type || TreeItemType.folder
+  type: TreeItemType
+  name: string
+  parent?: TreeItem
+  children: TreeItem[]
+  expand: boolean
+  active: boolean
+  describe: string
+
+  constructor (options: Partial<TreeItemOption> = {}) {
+    this.type = options.type || TreeItemTypeEnum.folder
 
     const defualtName = this.isFolder ? configs.newFolderDefaultName : configs.newFileDefaultName
     this.name = options.name || defualtName
@@ -54,26 +64,22 @@ export class TreeItem {
   }
 
   get isFolder () {
-    return this.type === TreeItemType.folder
+    return this.type === TreeItemTypeEnum.folder
   }
 }
 
-export const tree = {
-  /**
-   * @type {TreeItem[]}
-   */
-  model: vue.observable([]),
-  /**
-   * @type {TreeItem}
-   */
-  currentActive: null,
-  /**
-   * @param {} indidect
-   */
-  find (predicate) {
-    // const find = (list, predicate) => list.find(predicate)
-    const findInChildren = (model, predicate) => {
-      let getIt = model.children.find(predicate)
+export class TreeManager {
+  model: TreeItem[]
+
+  currentActive?: TreeItem
+
+  constructor () {
+    this.model = vue.observable([])
+  }
+
+  find (predicate: (item: TreeItem) => boolean) {
+    const findInChildren = (model: { children: TreeItem[] }, predicate: (item: TreeItem) => boolean): TreeItem | void => {
+      let getIt: TreeItem | void = model.children.find(predicate)
       if (getIt) return getIt
 
       for (const child of model.children) {
@@ -83,29 +89,26 @@ export const tree = {
     }
 
     return findInChildren({ children: this.model }, predicate)
-  },
-  /**
-   *
-   * @param {TreeItem} item
-   */
-  active (item) {
+  }
+
+  active (item?: TreeItem) {
     if (this.currentActive) {
       this.currentActive.active = false
     }
+
     if (item) {
       item.active = true
       this.currentActive = item
     }
-  },
-  /**
-   * @type {TreeItem[]}
-   */
-  replace (items) {
+  }
+
+  replace (items: TreeItem[]) {
     this.model.splice(0)
     this.model.push(...items)
     this.sort()
-  },
-  checkDuplicate (list, item) {
+  }
+
+  checkDuplicate (list: TreeItem[], item: TreeItem) {
     const has = list.find(m => m.name === item.name && m.type === item.type)
 
     if (has) {
@@ -113,12 +116,9 @@ export const tree = {
     }
 
     return has
-  },
-  /**
-   *
-   * @param {TreeItem} item
-   */
-  add (item) {
+  }
+
+  add (item: TreeItem) {
     if (this.currentActive) {
       if (this.currentActive.isFolder) {
         if (this.checkDuplicate(this.currentActive.children, item)) {
@@ -151,62 +151,49 @@ export const tree = {
       this.model.push(item)
     }
     this.sort()
-  },
-  /**
-   * @param {TreeItem[]} models
-   * @param {TreeItem|null} parent
-   * @param {boolean} dec
-   */
-  _sort (models, parent, dec) {
+  }
+
+  private _sort (models: TreeItem[], parent: TreeItem | null, dec: boolean) {
     models.sort((a, b) => (dec ? 1 : -1) * (a.name + a.type > b.name + b.type ? -1 : 1))
 
     for (const child of models) {
-      child.parent = parent
+      child.parent = parent || undefined
 
       if (child.isFolder && child.children.length) {
         this._sort(child.children, child, dec)
       }
     }
-  },
+  }
+
   sort (dec = false) {
     this._sort(this.model, null, dec)
-  },
-  /**
-   *
-   * @param {TreeItem} item
-   */
-  toggleExpand (item) {
+  }
+
+  toggleExpand (item: TreeItem) {
     item.expand = !item.expand
-  },
-  /**
-   *
-   * @param {TreeItem} item
-   */
-  remove (item) {
+  }
+
+  remove (item: TreeItem) {
     if (!item) return
     const children = (item.parent && item.parent.children) || this.model
 
-    item.parent = null
+    item.parent = undefined
     const idx = children.indexOf(item)
     if (idx >= 0) {
       return children.splice(idx, 1)
     }
 
     return null
-  },
-  /**
-   *
-   * @param {TreeItem} fromItem
-   * @param {TreeItem} [toItem]
-   */
-  move (fromItem, toItem) {
+  }
+
+  move (fromItem?: TreeItem, toItem?: TreeItem) {
     if (!fromItem) {
       return
     }
 
     if (!toItem) {
       if (fromItem.parent) {
-        tree.remove(fromItem)
+        this.remove(fromItem)
         this.model.push(fromItem)
       }
       return
@@ -222,7 +209,7 @@ export const tree = {
 
     if (toItem.isFolder) {
       if (!this.checkDuplicate(toItem.children, fromItem)) {
-        tree.remove(fromItem)
+        this.remove(fromItem)
         fromItem.parent = toItem
         toItem.children.push(fromItem)
       }
@@ -233,13 +220,13 @@ export const tree = {
 
       if (toItem.parent) {
         if (!this.checkDuplicate(toItem.parent.children, fromItem)) {
-          tree.remove(fromItem)
+          this.remove(fromItem)
           fromItem.parent = toItem.parent
           toItem.parent.children.push(fromItem)
         }
       } else {
         if (!this.checkDuplicate(this.model, fromItem)) {
-          tree.remove(fromItem)
+          this.remove(fromItem)
           this.model.push(fromItem)
         }
       }
@@ -247,11 +234,13 @@ export const tree = {
   }
 }
 
+export const tree = new TreeManager()
+
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Delete' && tree.currentActive) {
     if (window.confirm(`Delete file [${tree.currentActive.name}] ?`)) {
       tree.remove(tree.currentActive)
-      tree.active(null)
+      tree.active()
     }
   }
 })
