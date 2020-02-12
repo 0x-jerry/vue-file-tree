@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <tree-view :tree="tree" title="tree test" />
+    <tree-view :tree="tree" title="Test Project" />
   </div>
 </template>
 

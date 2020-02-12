@@ -3348,9 +3348,9 @@ export function resolveIconName (options = {}) {
   let id = ''
 
   if (opt.isFolder) {
-    const folder = iconsdata.folderNamesExpanded[opt.name] || iconsdata.folder
-    const folderExpaned = iconsdata.folderNames[opt.name] || iconsdata.folderExpanded
-    id = opt.isOpen ? folder : folderExpaned
+    const folder = iconsdata.folderNames[opt.name] || iconsdata.folder
+    const folderExpaned = iconsdata.folderNamesExpanded[opt.name] || iconsdata.folderExpanded
+    id = opt.isOpen ? folderExpaned : folder
   } else {
     const exts = opt.name.split('.').slice(1)
 

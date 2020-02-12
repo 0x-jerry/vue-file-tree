@@ -23,7 +23,6 @@ export default {
   },
   computed: {
     icon () {
-      // const name = this.model.isFolder ? 'folder-other' : 'javascript'
       const name = resolveIconName({
         name: this.model.name,
         isFolder: this.model.isFolder,

@@ -63,12 +63,16 @@ export default {
   &-title {
     color: #dae1f7;
     height: 100%;
+    display: flex;
+    align-items: center;
   }
 
   &-actions {
     flex: 1;
-    text-align: right;
     height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 
   &-icon {
