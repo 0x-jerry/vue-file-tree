@@ -45,7 +45,9 @@ export default {
     NestedItem
   },
   data () {
-    tree.replace(this.tree)
+    const treeItems = this.tree.map(opt => new TreeItem(opt))
+
+    tree.replace(treeItems)
 
     return {
       rootChildren: tree.model,

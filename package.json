@@ -4,7 +4,8 @@
   "types": "index.d.ts",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --target lib --name VueFileTree src/entry.js",
+    "build": "vue-cli-service build --outputDir docs",
+    "build:lib": "vue-cli-service build --target lib --name VueFileTree src/entry.ts",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

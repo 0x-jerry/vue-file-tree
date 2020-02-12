@@ -5,28 +5,34 @@
 </template>
 
 <script>
-import { TreeItem, TreeView } from './entry'
+import { TreeView } from './entry'
 
 export default {
-  name: 'App',
   components: {
     TreeView
   },
   computed: {
     tree () {
-      const root = new TreeItem({ name: 'test', type: 'folder' })
-      const file = new TreeItem({ name: 'xx.ts', type: 'file' })
-
-      root.expand = true
-      root.children.push(file)
-
-      file.parent = root
-
       return [
-        root,
-        new TreeItem({ name: 'test.js', type: 'folder' }),
-        new TreeItem({ name: 'test.js', type: 'file' }),
-        new TreeItem({ name: 'xx.md', type: 'file' })
+        {
+          name: 'test',
+          type: 'folder',
+          expand: true,
+          children: [
+            { name: 'xx.ts', type: 'file' },
+            { name: 'xx.sh', type: 'file' }
+          ]
+        },
+        {
+          name: 'test.js',
+          type: 'folder',
+          expand: true,
+          children: [
+            { name: 'test.vue', type: 'file', active: true }
+          ]
+        },
+        { name: 'test.js', type: 'file' },
+        { name: 'xx.md', type: 'file' }
       ]
     }
   }

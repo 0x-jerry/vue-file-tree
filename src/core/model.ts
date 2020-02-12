@@ -4,8 +4,10 @@ import { configs } from './config'
 export interface TreeItemOption {
   name: string;
   type: TreeItemType;
-  parent: TreeItem;
   describe: string;
+  expand: boolean;
+  active: boolean;
+  children?: Partial<TreeItemOption>[];
 }
 
 export type TreeItemType = 'folder' | 'file' | TreeItemTypeEnum
@@ -30,12 +32,21 @@ export class TreeItem {
     const defualtName = this.isFolder ? configs.newFolderDefaultName : configs.newFileDefaultName
     this.name = options.name || defualtName
 
-    this.parent = options.parent
-    this.active = false
-    this.expand = false
+    this.active = !!options.active
+    this.expand = !!options.expand
     this.describe = options.describe || ''
 
     this.children = []
+
+    this._initChildren(options.children)
+  }
+
+  private _initChildren (children: Partial<TreeItemOption>[] = []) {
+    for (const child of children) {
+      const m = new TreeItem(child)
+      this.children.push(m)
+      m.parent = this
+    }
   }
 
   get depth () {
@@ -158,6 +169,8 @@ export class TreeManager {
 
     for (const child of models) {
       child.parent = parent || undefined
+
+      child.active && this.active(child)
 
       if (child.isFolder && child.children.length) {
         this._sort(child.children, child, dec)
