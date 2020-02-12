@@ -1,5 +1,14 @@
 <template>
-  <div class="tree-item" :class="{ selected }" @click="clickTreeItem">
+  <div
+    class="tree-item"
+    :class="{ selected }"
+    @click="clickTreeItem"
+    draggable="true"
+    @drop.prevent="drop"
+    @dragstart="dragStart"
+    @dropover.prevent
+    @dragover.prevent
+  >
     <span class="tree-item-indent" :style="indentStyle"></span>
     <span
       class="tree-item-icon"
@@ -46,6 +55,15 @@ export default {
     }
   },
   methods: {
+    dragStart (e) {
+      e.dataTransfer.setData('text/plain', this.model.uri)
+    },
+    drop (e) {
+      const uri = e.dataTransfer.getData('text')
+      const model = tree.find(m => m.uri === uri)
+
+      tree.move(model, this.model)
+    },
     clickTreeItem () {
       this.activeCurrent()
 

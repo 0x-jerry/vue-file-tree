@@ -1,8 +1,8 @@
 
 <template>
-  <div class="drag-area">
-    <div v-for="el in children" :key="el.name+el.type">
-      <tree-item :model="el"  />
+  <div class="tree-nested-item">
+    <div v-for="el in children" :key="el.name+el.type" class="tree-highlight-item" tree-highlight-item>
+      <tree-item :model="el" />
       <nested-item v-if="el.isFolder && el.expand" :children="el.children" />
     </div>
   </div>
@@ -32,12 +32,8 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
-.drag-area {
+<style lang="less">
+.tree-nested-item {
   width: 100%;
-}
-
-.drag-item {
-  list-style: none;
 }
 </style>

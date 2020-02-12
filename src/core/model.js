@@ -68,6 +68,23 @@ export const tree = {
    */
   currentActive: null,
   /**
+   * @param {} indidect
+   */
+  find (predicate) {
+    // const find = (list, predicate) => list.find(predicate)
+    const findInChildren = (model, predicate) => {
+      let getIt = model.children.find(predicate)
+      if (getIt) return getIt
+
+      for (const child of model.children) {
+        getIt = findInChildren(child, predicate)
+        if (getIt) return getIt
+      }
+    }
+
+    return findInChildren({ children: this.model }, predicate)
+  },
+  /**
    *
    * @param {TreeItem} item
    */
@@ -88,24 +105,23 @@ export const tree = {
     this.model.push(...items)
     this.sort()
   },
+  checkDuplicate (list, item) {
+    const has = list.find(m => m.name === item.name && m.type === item.type)
+
+    if (has) {
+      window.alert(`Duplicate ${item.type} [${item.name}]`)
+    }
+
+    return has
+  },
   /**
    *
    * @param {TreeItem} item
    */
   add (item) {
-    const checkDuplicate = (list, item) => {
-      const has = list.find(m => m.name === item.name && m.type === item.type)
-
-      if (has) {
-        window.alert(`Duplicate ${item.type} [${item.name}]`)
-      }
-
-      return has
-    }
-
     if (this.currentActive) {
       if (this.currentActive.isFolder) {
-        if (checkDuplicate(this.currentActive.children, item)) {
+        if (this.checkDuplicate(this.currentActive.children, item)) {
           return
         }
 
@@ -114,7 +130,7 @@ export const tree = {
         item.parent = this.currentActive
       } else {
         if (this.currentActive.parent) {
-          if (checkDuplicate(this.currentActive.parent.children, item)) {
+          if (this.checkDuplicate(this.currentActive.parent.children, item)) {
             return
           }
 
@@ -122,14 +138,14 @@ export const tree = {
           this.currentActive.parent.expand = true
           item.parent = this.currentActive.parent
         } else {
-          if (checkDuplicate(this.model, item)) {
+          if (this.checkDuplicate(this.model, item)) {
             return
           }
           this.model.push(item)
         }
       }
     } else {
-      if (checkDuplicate(this.model, item)) {
+      if (this.checkDuplicate(this.model, item)) {
         return
       }
       this.model.push(item)
@@ -170,12 +186,64 @@ export const tree = {
     if (!item) return
     const children = (item.parent && item.parent.children) || this.model
 
+    item.parent = null
     const idx = children.indexOf(item)
     if (idx >= 0) {
       return children.splice(idx, 1)
     }
 
     return null
+  },
+  /**
+   *
+   * @param {TreeItem} fromItem
+   * @param {TreeItem} [toItem]
+   */
+  move (fromItem, toItem) {
+    if (!fromItem) {
+      return
+    }
+
+    if (!toItem) {
+      if (fromItem.parent) {
+        tree.remove(fromItem)
+        this.model.push(fromItem)
+      }
+      return
+    }
+
+    if (fromItem.parent === toItem) {
+      return
+    }
+
+    if (fromItem === toItem) {
+      return
+    }
+
+    if (toItem.isFolder) {
+      if (!this.checkDuplicate(toItem.children, fromItem)) {
+        tree.remove(fromItem)
+        fromItem.parent = toItem
+        toItem.children.push(fromItem)
+      }
+    } else {
+      if (fromItem.parent === toItem.parent) {
+        return
+      }
+
+      if (toItem.parent) {
+        if (!this.checkDuplicate(toItem.parent.children, fromItem)) {
+          tree.remove(fromItem)
+          fromItem.parent = toItem.parent
+          toItem.parent.children.push(fromItem)
+        }
+      } else {
+        if (!this.checkDuplicate(this.model, fromItem)) {
+          tree.remove(fromItem)
+          this.model.push(fromItem)
+        }
+      }
+    }
   }
 }
 

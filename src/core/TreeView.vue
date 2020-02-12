@@ -7,13 +7,31 @@
         <button class="tree-explorer-icon" @click="createNewFolder">(x)</button>
       </div>
     </div>
-    <nested-item :children="rootChildren" class="tree-content" />
+    <nested-item
+      :children="rootChildren"
+      tree-highlight-item
+      class="tree-content tree-highlight-item"
+      @drop.native.prevent="drop"
+      @dropover.native.prevent
+      @dragover.native.prevent
+      @dragenter.native="dargEnter"
+    />
   </div>
 </template>
 
 <script>
 import NestedItem from './NestedItem'
 import { TreeItem, tree } from './model'
+
+function findNearestTreeHighlightItem (el) {
+  while (el) {
+    if (el.hasAttribute('tree-highlight-item')) {
+      return el
+    } else {
+      el = el.parentElement
+    }
+  }
+}
 
 export default {
   props: {
@@ -30,10 +48,38 @@ export default {
     tree.replace(this.tree)
 
     return {
-      rootChildren: tree.model
+      rootChildren: tree.model,
+      dropInEl: null
     }
   },
   methods: {
+    drop (e) {
+      if (e.target !== e.currentTarget) {
+        return
+      }
+
+      const uri = e.dataTransfer.getData('text')
+      const model = tree.find(m => m.uri === uri)
+
+      tree.move(model, null)
+
+      const el = findNearestTreeHighlightItem(e.target)
+      if (el) {
+        el.classList.remove('highlight')
+      }
+      this.dropInEl = null
+    },
+    dargEnter (e) {
+      const el = findNearestTreeHighlightItem(e.target)
+      if (this.dropInEl) {
+        this.dropInEl.classList.remove('highlight')
+      }
+
+      if (el) {
+        this.dropInEl = el
+        el.classList.add('highlight')
+      }
+    },
     createNewFile () {
       const name = window.prompt('please input name')
       tree.add(new TreeItem({ name, type: 'file' }))
@@ -52,6 +98,8 @@ export default {
 </script>
 
 <style lang="less">
+@explorer-title-bar-heihgt: 25px;
+
 .tree-explorer {
   width: 300px;
   height: 600px;
@@ -90,7 +138,7 @@ export default {
 
 .tree-title-bar {
   padding: 0 10px;
-  height: 25px;
+  height: @explorer-title-bar-heihgt;
   display: flex;
   align-items: center;
   background: #282c34;
@@ -99,6 +147,12 @@ export default {
 .tree-content {
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(100% - 25px);
+  height: calc(100% - @explorer-title-bar-heihgt);
+}
+
+.tree-highlight-item {
+  &.highlight {
+    background: #383e4a;
+  }
 }
 </style>
