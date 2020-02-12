@@ -54,6 +54,13 @@ export default {
   },
   methods: {
     drop (e) {
+      const el = findNearestTreeHighlightItem(this.dropInEl)
+      if (el) {
+        el.classList.remove('highlight')
+      }
+
+      this.dropInEl = null
+
       if (e.target !== e.currentTarget) {
         return
       }
@@ -62,12 +69,6 @@ export default {
       const model = tree.find(m => m.uri === uri)
 
       tree.move(model, null)
-
-      const el = findNearestTreeHighlightItem(e.target)
-      if (el) {
-        el.classList.remove('highlight')
-      }
-      this.dropInEl = null
     },
     dargEnter (e) {
       const el = findNearestTreeHighlightItem(e.target)
