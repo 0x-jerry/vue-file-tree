@@ -2,9 +2,10 @@
   "name": "vue-file-tree",
   "version": "0.1.0",
   "types": "index.d.ts",
+  "license": "MIT",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --outputDir docs",
+    "build": "vue-cli-service build --dest docs",
     "build:lib": "vue-cli-service build --target lib --name VueFileTree src/entry.ts",
     "lint": "vue-cli-service lint"
   },
