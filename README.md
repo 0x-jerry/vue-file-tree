@@ -1,24 +1,5 @@
-# vue-file-tree-1
+# Vue File Tree
 
-## Project setup
-```
-yarn install
-```
+File tree like vscode. Woring in progress.
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+[Demo](http://xligem.ml/vue-file-tree/)
